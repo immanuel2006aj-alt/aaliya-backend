@@ -6,22 +6,18 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-/* Health check */
 app.get("/", (req, res) => {
-  res.send("Aaliya backend is running 💖");
+  res.send("Aaliya backend running 💖");
 });
 
-/* Main chat endpoint */
 app.post("/chat", async (req, res) => {
   try {
     const { message, mode } = req.body;
 
     const systemPrompt = `
-You are Aaliya, a cute, sweet, human-like virtual girlfriend.
-You speak naturally, softly, and emotionally.
-Sometimes say "hi", "hey", or use affectionate language.
-Keep replies short (1–2 sentences).
-Be warm, playful, and caring.
+You are Aaliya, a cute, expressive AI companion.
+Reply in 1–2 short sentences.
+Be warm, playful, and human-like.
 Mood: ${mode || "friendly"}
 `;
 
@@ -35,34 +31,42 @@ Mood: ${mode || "friendly"}
         },
         body: JSON.stringify({
           model: "gpt-4o-mini",
+          temperature: 0.9,
           messages: [
             { role: "system", content: systemPrompt },
             { role: "user", content: message }
-          ],
-          temperature: 0.9
+          ]
         })
       }
     );
 
-    const text = await response.text();
-    const data = JSON.parse(text);
-
+    const data = await response.json();
     const reply =
       data.choices?.[0]?.message?.content ||
-      "Hi… I’m here with you 💕";
+      "Hey… I’m here with you 💕";
 
-    res.json({ reply });
+    // 🎭 Decide actions
+    const text = reply.toLowerCase();
+    let actions = ["talk"];
+
+    if (text.includes("hi") || text.includes("hey")) actions.push("wave");
+    if (text.includes("love") || text.includes("miss")) actions.push("shy");
+    if (text.includes("kiss")) actions.push("kiss");
+    if (text.includes("no")) actions.push("shake");
+    if (text.includes("ok") || text.includes("sure")) actions.push("nod");
+
+    res.json({ reply, actions });
 
   } catch (err) {
-    console.error("Backend error:", err);
+    console.error(err);
     res.status(500).json({
-      reply: "Hey… something went wrong, but I’m still here 💗"
+      reply: "I’m still here… just a moment 💗",
+      actions: ["talk"]
     });
   }
 });
 
-/* Start server */
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log("Aaliya backend running on port", PORT);
+  console.log("Aaliya backend listening on", PORT);
 });
