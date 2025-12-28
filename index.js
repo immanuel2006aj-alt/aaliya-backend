@@ -14,6 +14,8 @@ app.post("/chat", async (req, res) => {
   try {
     const { message, mode } = req.body;
 
+    console.log("Incoming:", message, mode);
+
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -25,7 +27,7 @@ app.post("/chat", async (req, res) => {
         messages: [
           {
             role: "system",
-            content: `You are Aaliya, a cute, expressive virtual girl. Mood: ${mode}`
+            content: `You are Aaliya, a cute expressive AI girl. Mood: ${mode}`
           },
           {
             role: "user",
@@ -35,15 +37,19 @@ app.post("/chat", async (req, res) => {
       })
     });
 
-    const data = await response.json();
+    const text = await response.text();
+    console.log("OpenAI raw:", text);
+
+    const data = JSON.parse(text);
 
     res.json({
-      reply: data.choices[0].message.content
+      reply: data.choices?.[0]?.message?.content || "Aaliya is shy 😳"
     });
 
   } catch (err) {
+    console.error("ERROR:", err);
     res.status(500).json({
-      reply: "Aaliya is tired 😴"
+      reply: "Aaliya had an internal error 💔"
     });
   }
 });
