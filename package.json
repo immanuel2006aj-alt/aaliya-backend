@@ -1,13 +1,10 @@
 {
-  "name": "aaliya-backend",
-  "version": "1.0.0",
+  "name": "invite-rotator",
   "type": "module",
   "scripts": {
-    "start": "node index.js"
+    "start": "node server.js"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "cors": "^2.8.5",
-    "node-fetch": "^3.3.2"
+    "express": "^4.18.2"
   }
 }
